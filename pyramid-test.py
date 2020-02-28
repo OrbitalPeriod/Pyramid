@@ -53,8 +53,8 @@ def start(ID):
     Ordered = {}
 
     print("Which game would you like to play first?")
-    y = 0
-    while y == 0:
+
+    while True:
         i = input().lower()
         if i not in Challenges:
             print("Game not found, Check your spelling.")
@@ -62,13 +62,12 @@ def start(ID):
             TempList = {}
             TempList[i] = Challenges[i]
             Ordered.update(TempList)
-            y += 1
             Challenges.pop(i)
+            break
 
 
     print("Which game would you like to play second?")
-    y = 0
-    while y == 0:
+    while True:
         i = input().lower()
         if i not in Challenges:
             print("Game not found, Check your spelling.")
@@ -76,13 +75,12 @@ def start(ID):
             TempList = {}
             TempList[i] = Challenges[i]
             Ordered.update(TempList)
-            y += 1
             Challenges.pop(i)
+            break
 
 
     print("Which game would you like to play third?")
-    y = 0
-    while y == 0:
+    while True:
         i = input().lower()
         if i not in Challenges:
             print("Game not found, Check your spelling.")
@@ -90,13 +88,12 @@ def start(ID):
             TempList = {}
             TempList[i] = Challenges[i]
             Ordered.update(TempList)
-            y += 1
             Challenges.pop(i)
+            break
 
 
     print("Which game would you like to play fourth?")
-    y = 0
-    while y == 0:
+    while True:
         i = input().lower()
         if i not in Challenges:
             print("Game not found, Check your spelling.")
@@ -104,12 +101,11 @@ def start(ID):
             TempList = {}
             TempList[i] = Challenges[i]
             Ordered.update(TempList)
-            y += 1
             Challenges.pop(i)
+            break
 
     print("Which game would you like to play fifth?")
-    y = 0
-    while y == 0:
+    while True:
         i = input().lower()
         if i not in Challenges:
             print("Game not found, Check your spelling.")
@@ -117,8 +113,8 @@ def start(ID):
             TempList = {}
             TempList[i] = Challenges[i]
             Ordered.update(TempList)
-            y += 1
             Challenges.pop(i)
+            break
 
 
     print("These are the games you have selected:")
@@ -357,9 +353,6 @@ def Main():
             status(ID) 
         if x == "!update":
             update(ID)
-            
-
-
 
 
 Main()
