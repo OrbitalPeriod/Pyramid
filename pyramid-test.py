@@ -32,7 +32,7 @@ def start(ID):
             print("Continue your game")
             return 0
 
-    for p in range(0, 5):       # Choses 5 random games from Games
+    for p in range(0, 5):       # Choses 5 random games from games
         i = random.randint(0, len(Games) - 1)
         RandGames.append(Games[i])
         Games.pop(i)
