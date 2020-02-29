@@ -1,4 +1,4 @@
-    import random
+import random
 import json
 
 with open("database.json", "r") as db:
@@ -25,7 +25,6 @@ def start(ID):
     status =  x[ID]["status"]
     if status != "":
         print("Game in progres, would you like to quit the game? Y/N")
-        B = 
         if YorN():
             print("Resetting game.")
             ClearUsr(ID)
@@ -43,7 +42,7 @@ def start(ID):
         Main = random.randint(0, len(Dic[0])- 1)
         Sub = random.randint(0, len(Dic[1])- 1)
         
-        Challendes[y] = [(Dic[0][Main]), (Dic[1][Sub])]
+        Challenges[y] = [(Dic[0][Main]), (Dic[1][Sub])]
 
     print("The following games and challenges have been generated: ")   # Prints all the games and challenges
     for y in Challenges:
@@ -80,9 +79,9 @@ def CheckUsr(ID):
 
     if ID in x:
         print("User in DB")
-        
+
     else:
-        print("adding user to DB")
+        print("Adding user to DB")
         data = {
             "games" : {},
             "progress" : 0,
@@ -127,94 +126,34 @@ def play(ID):
     if status == "" or "Playing" in status:
         print("Cant start a game right now, use !status to see your current state")
         return
-    
-    if progress == 0:
+
+    game_picks = ["first", "second", "third", "fourth", "fifth"]
+
+    if progress >= 0 and progress <= 4:
         game = [element for element in games]
-        print(f"Your first game is: {game[0]}, With challenges: {games[game[0]][0]} & {games[game[0]][1]}")
-        print("Do you wanna start the firt game? Y/N")
-        y = 0
-        while y == 0:
+
+        print("Your " + game_picks[progress] + f" game is: {game[0]}, With challenges: {games[game[progress]][0]} & {games[game[progress]][1]}")
+        print("Do you wanna start the " + game_picks[progress] + " game? Y/N")
+
+        while True:
             inpt = input().lower()
+
             if inpt == "y":
-                print("Game 1 started, when youre done, use !update to update your score. For a status check, use !status")
-                status = "Playing game 1"
+                print("Game " + str(progress) + " started, when youre done, use !update to update your score. For a status check, use !status")
+                status = "Playing game " + str(progress)
                 data["status"] = status
                 x[ID] = data
                 with open("database.json", "w") as db:
                     json.dump(x, db)
-                y += 1
                 return 0
-            if inpt == "n":
+
+            elif inpt == "n":
                 print("When you wanna play, use !play")
-                y += 1
                 return 0
+
             else:
                 print("Unknown input, Y/N")
 
-    if progress == 1:
-        game = [element for element in games]
-        print(f"Your second game is: {game[1]}, With challenges: {games[game[1]][0]} & {games[game[1]][1]}")
-        print("Do you wanna start the second game? Y/N")
-        B = YorN()
-        if B == True:
-            print("Game 2 started, when youre done, use !update to update your score. For a status check, use !status")
-            status = "Playing game 2"
-            data["status"] = status
-            x[ID] = data
-            with open("database.json", "w") as db:
-                json.dump(x, db)
-            return 0
-        if B == False:
-            print("When you wanna play, use !play")
-            return 0
-    if progress == 2:
-        game = [element for element in games]
-        print(f"Your third game is: {game[2]}, With challenges: {games[game[2]][0]} & {games[game[2]][1]}")
-        print("Do you wanna start the third game? Y/N")
-        B = YorN()
-        if B == True:
-            print("Game 3 started, when youre done, use !update to update your score. For a status check, use !status")
-            status = "Playing game 3"
-            data["status"] = status
-            x[ID] = data
-            with open("database.json", "w") as db:
-                json.dump(x, db)
-            return 0
-        if B == False:
-            print("When you wanna play, use !play")
-            return 0
-    if progress == 3:
-        game = [element for element in games]
-        print(f"Your fourth game is: {game[3]}, With challenges: {games[game[3]][0]} & {games[game[3]][1]}")
-        print("Do you wanna start the fourth game? Y/N")
-        B = YorN()
-        if B == True:
-            print("Game 4 started, when youre done, use !update to update your score. For a status check, use !status")
-            status = "Playing game 4"
-            data["status"] = status
-            x[ID] = data
-            with open("database.json", "w") as db:
-                json.dump(x, db)
-            return 0
-        if B == False:
-            print("When you wanna play, use !play")
-            return 0
-    if progress == 4:
-        game = [element for element in games]
-        print(f"Your fifth game is: {game[4]}, With challenges: {games[game[4]][0]} & {games[game[4]][1]}")
-        print("Do you wanna start the fifth game? Y/N")
-        B = YorN()
-        if B == True:
-            print("Game 5 started, when youre done, use !update to update your score. For a status check, use !status")
-            status = "Playing game 5"
-            data["status"] = status
-            x[ID] = data
-            with open("database.json", "w") as db:
-                json.dump(x, db)
-            return 0
-        if B == False:
-            print("When you wanna play, use !play")
-            return 0
     else:
         print("Fatal error, talk to OrbitalPeriod#1771")
 
