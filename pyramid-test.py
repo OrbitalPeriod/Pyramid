@@ -1,10 +1,12 @@
-import random
+    import random
 import json
 
 with open("database.json", "r") as db:
     x = json.load(db)
 
-def start(ID): 
+def start(ID):
+    global x
+
     Ref = {
     "isaac" : [["Win the run starting as Eden", "Win the run starting as Isaac", "Win the run starting as Cain", "Win the run starting as Lazarus", "Win the run starting as Maggi", "Win the run starting as The Keeper", "Win the run starting as ???", "Win the run starting as forgotten", "Win the run starging as judas"],["No devil deals; only angel deals: beat the Chest", "No angel deals; Only devil deals: Beat the dark room", "Beat the boss rush; if you cannot make it to bosh rush you do not get points for this challenge; beat the chest", "Beat Hush; If you cannot make it to Hush, you do not get points for this challenge; Beat the dark room", "Skip two item room items; Beat the chest", "Skip a boss room item; Beat the chest", "Play on the VNKNOWN seed; Beat the chest", "Play on the GONESOON seed; beat the Chest", "Play on the KEEPTRAK seed; Beat the chest", "Using the debug console; Spawn both key pieces and beat mega satan", "Using the debug console; Spawn bob's brain and skip the first item room; Beat the dark room"]], 
     "bumbo" : [["Play as Bum-Bo the Brave;beat the third floor boss", "Play as Bum-Bo the Nimble; Beat the third floor boss", "Play as Bum-Bo the stout; Beat the third floor Boss", "Play as Bum-Bo the weird; Beat the third floor"],["Finish with atleast 1 soul heart", "Match at least 7 combos", "skip two spells in item rooms", "Do not spend any coins in the second casino", "Flawless a boss", "Finish without upgrading spells in the casino", "Go down half a heart at least once on the run", "Never have more than 3 poops out at a given time"]],
@@ -20,137 +22,80 @@ def start(ID):
     RandGames = []
     Challenges = {}
 
-    global x
-
     status =  x[ID]["status"]
     if status != "":
         print("Game in progres, would you like to quit the game? Y/N")
-        B = YorN()
-        if B == True:
+        B = 
+        if YorN():
             print("Resetting game.")
             ClearUsr(ID)
-        elif B == False:
+        else:
             print("Continue your game")
             return 0
 
-    for p in range(0, 5):      # Choses 5 random games from Games
+    for p in range(0, 5):       # Choses 5 random games from Games
         i = random.randint(0, len(Games) - 1)
         RandGames.append(Games[i])
         Games.pop(i)
 
-    for y in RandGames: # assigns random challenges to the games and makes a dictionary Challenges: {Game : [Main challenge, secondary challenge]}
+    for y in RandGames:         # Assigns random challenges to the games and makes a dictionary Challenges: {Game : [Main challenge, secondary challenge]}
         Dic = Ref[y]
         Main = random.randint(0, len(Dic[0])- 1)
         Sub = random.randint(0, len(Dic[1])- 1)
         
-        TempList = [(Dic[0][Main]), (Dic[1][Sub])]
-        TempDic = {}
-        TempDic[y] = TempList
-        Challenges.update(TempDic)
+        Challendes[y] = [(Dic[0][Main]), (Dic[1][Sub])]
 
-    print("The following games and challenges have been generated: ")   #prints all the games and challenges
+    print("The following games and challenges have been generated: ")   # Prints all the games and challenges
     for y in Challenges:
         Temp = Challenges[y]
         print(f"Game: {y}: {Temp[0]}, {Temp[1]}")
 
     Ordered = {}
 
-    print("Which game would you like to play first?")
+    game_picks = ["first", "second", "third", "fourth", "fifth"]
 
-    while True:
-        i = input().lower()
-        if i not in Challenges:
-            print("Game not found, Check your spelling.")
-        else:
-            TempList = {}
-            TempList[i] = Challenges[i]
-            Ordered.update(TempList)
-            Challenges.pop(i)
-            break
-
-
-    print("Which game would you like to play second?")
-    while True:
-        i = input().lower()
-        if i not in Challenges:
-            print("Game not found, Check your spelling.")
-        else:
-            TempList = {}
-            TempList[i] = Challenges[i]
-            Ordered.update(TempList)
-            Challenges.pop(i)
-            break
-
-
-    print("Which game would you like to play third?")
-    while True:
-        i = input().lower()
-        if i not in Challenges:
-            print("Game not found, Check your spelling.")
-        else:
-            TempList = {}
-            TempList[i] = Challenges[i]
-            Ordered.update(TempList)
-            Challenges.pop(i)
-            break
-
-
-    print("Which game would you like to play fourth?")
-    while True:
-        i = input().lower()
-        if i not in Challenges:
-            print("Game not found, Check your spelling.")
-        else:
-            TempList = {}
-            TempList[i] = Challenges[i]
-            Ordered.update(TempList)
-            Challenges.pop(i)
-            break
-
-    print("Which game would you like to play fifth?")
-    while True:
-        i = input().lower()
-        if i not in Challenges:
-            print("Game not found, Check your spelling.")
-        else:
-            TempList = {}
-            TempList[i] = Challenges[i]
-            Ordered.update(TempList)
-            Challenges.pop(i)
-            break
-
+    for pick in game_picks:
+        print("Which game would you like to play " + pick + "?")
+        while True:
+            i = input().lower()
+            if i not in Challenges:
+                print("Game not found, Check your spelling.")
+            else:
+                Ordered[i] = Challenges[i]
+                Challenges.pop(i)
+                break
 
     print("These are the games you have selected:")
     for i in Ordered:
         Temp = Ordered[i]
         print(f"Game: {i}: {Temp[0]}, {Temp[1]}")
 
-    data = x[ID]
-    data["games"] = Ordered
-    data["status"] = "Game set up"
-    x[ID] = data
+    x[ID]["games"] = Ordered
+    x[ID]["status"] = "Game set up"
     with open("database.json", "r+") as db:
         json.dump(x, db)
 
 def CheckUsr(ID):
     global x
+
     if ID in x:
         print("User in DB")
+        
     else:
         print("adding user to DB")
         data = {
-    "games" : {},
-    "progress" : 0,
-    "status" : "",
-    "score" : 0,
-    "failed" : [],
-    "highscore" : 0,
-    "results" : {
-        "game 1" : [],
-        "game 2" : [],
-        "game 3" : [],
-        "game 4" : []}
-    }
+            "games" : {},
+            "progress" : 0,
+            "status" : "",
+            "score" : 0,
+            "failed" : [],
+            "highscore" : 0,
+            "results" : {
+                "game 1" : [],
+                "game 2" : [],
+                "game 3" : [],
+                "game 4" : []}
+            }
 
         x[ID] = data
         with open("database.json", "w") as db:
