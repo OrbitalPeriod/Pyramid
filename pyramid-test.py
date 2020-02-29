@@ -135,27 +135,20 @@ def play(ID):
         print("Your " + game_picks[progress] + f" game is: {game[0]}, With challenges: {games[game[progress]][0]} & {games[game[progress]][1]}")
         print("Do you wanna start the " + game_picks[progress] + " game? Y/N")
 
-        while True:
-            inpt = input().lower()
+        B = YorN()
 
-            if inpt == "y":
-                print("Game " + str(progress) + " started, when youre done, use !update to update your score. For a status check, use !status")
-                status = "Playing game " + str(progress)
-                data["status"] = status
-                x[ID] = data
-                with open("database.json", "w") as db:
-                    json.dump(x, db)
-                return 0
+        if B == True:
+            print("Game " + str(progress) + " started, when youre done, use !update to update your score. For a status check, use !status")
+            status = "Playing game " + str(progress)
+            data["status"] = status
+            x[ID] = data
+            with open("database.json", "w") as db:
+                json.dump(x, db)
+            return 0
 
-            elif inpt == "n":
-                print("When you wanna play, use !play")
-                return 0
-
-            else:
-                print("Unknown input, Y/N")
-
-    else:
-        print("Fatal error, talk to OrbitalPeriod#1771")
+        elif B == False:
+            print("When you wanna play, use !play")
+            return 0
 
 def status(ID):
     global x
