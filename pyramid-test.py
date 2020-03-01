@@ -90,10 +90,11 @@ def CheckUsr(ID):
             "failed" : [],
             "highscore" : 0,
             "results" : {
-                "game 1" : [],
-                "game 2" : [],
-                "game 3" : [],
-                "game 4" : []}
+                "game 1" : [0, 0],
+                "game 2" : [0, 0],
+                "game 3" : [0, 0],
+                "game 4" : [0, 0],
+                "game 5" : [0, 0]}
             }
 
         x[ID] = data
@@ -109,10 +110,11 @@ def ClearUsr(ID):
     data["score"] = 0
     data["failed"] = []
     data["results"] = {
-        "game 1" : [],
-        "game 2" : [],
-        "game 3" : [],
-        "game 4" : []}
+        "game 1" : [0, 0],
+        "game 2" : [0, 0],
+        "game 3" : [0, 0],
+        "game 4" : [0, 0],
+        "game 5" : [0, 0]}
     x[ID] = data
     with open("database.json", "w") as db:
         json.dump(x, db)
@@ -139,7 +141,7 @@ def play(ID):
 
         if B == True:
             print("Game " + str(progress) + " started, when youre done, use !update to update your score. For a status check, use !status")
-            status = "Playing game " + str(progress)
+            status = "Playing game " + str(progress + 1)
             data["status"] = status
             x[ID] = data
             with open("database.json", "w") as db:
@@ -158,14 +160,61 @@ def status(ID):
     status = data["status"]
     score = data["score"]
     failed = data["failed"]
+    progress = data["progress"]
     game = [element for element in games]
 
     if status == "": #WIP until after !update
-        print("no game set up")
+        print("no game set up\nUse !start to set up a game")
         return 0
     elif status == "Game set up":
         print("Game set up, not playing right now.\n", f"Your next game will be {game[0]}, with challenges {games[game[0]][0]} & {games[game[0]][1]}.")
         return 0
+    elif "Playing" in status:
+        print(f"{status}, The challenges being; {games[game[progress]][0]} & {games[game[progress]][1]}")
+    elif status == "ready":
+        print(f"You have finished {progress} games, your next game will be {game[progress]}\n Your current score is: {score}")
+
+def score(ID):
+    global x
+    data = x[ID]
+    results = data["results"]
+    score = data["score"]
+
+    state_g1 = results["game 1"][0]
+    state_g2 = results["game 2"][0]
+    state_g3 = results["game 3"][0]
+    state_g4 = results["game 4"][0]
+    stage_g5 = results["game 5"][0]
+
+    l = [state_g1, state_g2, state_g3, state_g4, stage_g5, 0]
+
+    y = 0
+    max_count = 0
+    extra_score = 0
+
+    for j in l:
+        if j == 100:
+            y += 1
+        else:
+            if y > max_count:
+                max_count = y
+            y = 0  
+    if max_count >= 2 and max_count <= 4:
+        extra_score = max_count * 50
+    if max_count == 5:
+        extra_score = 300
+
+    Tot_score = 0
+    Tot_score = results["game 1"][0] +  results["game 1"][1]
+    Tot_score = results["game 2"][0] + results["game 2"][1] + Tot_score
+    Tot_score = results["game 3"][0] + results["game 3"][1] + Tot_score
+    Tot_score = results["game 4"][0] + results["game 4"][1] + Tot_score
+    Tot_score = results["game 5"][0] + results["game 5"][1] + Tot_score
+    score = extra_score + Tot_score
+    data["score"] = score
+    x[ID] = data
+    with open("database.json", "w") as db:
+        json.dump(x, db)
 
 def YorN():
     while True:
@@ -197,22 +246,20 @@ def update(ID):
         print(f"Your first game was{game[0]}, Did you complete your main challenge: {games[game[0]][0]}? Y/N.")
         B = YorN()
         if B == True:
-            results["game 1"].append(True)
+            results["game 1"][0] = 100
             print(f"Did you complete the additional challenge, {games[game[0]][1]}")
             I = YorN()
             if I == True:
-                results["game 1"].append(True)
+                results["game 1"][1] = 50
                 print("Game 1 finished flawlessly, use !play to start the second game")
             if I == False:
-                results["game 1"].append(False)
                 print("Game 1 finished, use !play so start the second game")
         if B == False:
             print("Game 1 fully failed, use !play to start the second game")
-            results["game 1"].append(False)
-            results["game 1"].append(False)
 
         status = "ready"
         progress = 1
+        score(ID)
     elif status == "Playing game 2":
         return 0
     elif status == "Playing game 3":
@@ -260,6 +307,7 @@ def Main():
             status(ID) 
         if x == "!update":
             update(ID)
-
+        if x == "!score":
+            score(ID)
 
 Main() 
