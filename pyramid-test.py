@@ -1,5 +1,6 @@
 import random
 import json
+import datetime
 
 with open("database.json", "r") as db:
     x = json.load(db)
@@ -83,19 +84,23 @@ def CheckUsr(ID):
     else:
         print("Adding user to DB")
         data = {
-            "games" : {},
-            "progress" : 0,
-            "status" : "",
-            "score" : 0,
-            "failed" : [],
-            "highscore" : 0,
-            "results" : {
-                "game 1" : [0, 0],
-                "game 2" : [0, 0],
-                "game 3" : [0, 0],
-                "game 4" : [0, 0],
-                "game 5" : [0, 0]}
-            }
+
+    "games" : {},
+    "progress" : 0,
+    "status" : "",
+    "score" : 0,
+    "highscore" : {
+        "Highscore" : 0,
+        "time" : "",
+        "cycle" : 1},
+    "results" : {
+        "game 0" : [0, 0],
+        "game 1" : [0, 0],
+        "game 2" : [0, 0],
+        "game 3" : [0, 0],
+        "game 4" : [0, 0]}
+    }
+
 
         x[ID] = data
         with open("database.json", "w") as db:
@@ -108,13 +113,14 @@ def ClearUsr(ID):
     data["progress"] = 0
     data["status"] = ""
     data["score"] = 0
-    data["failed"] = []
     data["results"] = {
+
+        "game 0" : [0, 0],
         "game 1" : [0, 0],
         "game 2" : [0, 0],
         "game 3" : [0, 0],
-        "game 4" : [0, 0],
-        "game 5" : [0, 0]}
+        "game 4" : [0, 0]}
+    
     x[ID] = data
     with open("database.json", "w") as db:
         json.dump(x, db)
@@ -125,7 +131,7 @@ def play(ID):
     status = data["status"] #str status
     games = data["games"] #dictionary Games
 
-    if status == "" or "Playing" in status:
+    if status == "" or "Playing" in status or status == "Finished":
         print("Cant start a game right now, use !status to see your current state")
         return
 
@@ -159,11 +165,10 @@ def status(ID):
     games = data["games"]
     status = data["status"]
     score = data["score"]
-    failed = data["failed"]
     progress = data["progress"]
     game = [element for element in games]
 
-    if status == "": #WIP until after !update
+    if status == "": 
         print("no game set up\nUse !start to set up a game")
         return 0
     elif status == "Game set up":
@@ -173,20 +178,26 @@ def status(ID):
         print(f"{status}, The challenges being; {games[game[progress]][0]} & {games[game[progress]][1]}")
     elif status == "ready":
         print(f"You have finished {progress} games, your next game will be {game[progress]}\n Your current score is: {score}")
+    elif status == "Finished":
+        print("You have finished your run, see !finish to see your resu
 
-def score(ID):
+def YorN():
+    while True:
+        Inpt = input().lower()
+        if Inpt == "y":
+            return True
+        elif Inpt == "n":
+            return False
+        else:
+            print("unknown input")
+
+def Score(ID):
     global x
     data = x[ID]
     results = data["results"]
     score = data["score"]
 
-    state_g1 = results["game 1"][0]
-    state_g2 = results["game 2"][0]
-    state_g3 = results["game 3"][0]
-    state_g4 = results["game 4"][0]
-    stage_g5 = results["game 5"][0]
-
-    l = [state_g1, state_g2, state_g3, state_g4, stage_g5, 0]
+    l = [results["game 0"][0], results["game 1"][0], results["game 2"][0], results["game 3"][0],results["game 4"][0], 0]
 
     y = 0
     max_count = 0
@@ -199,32 +210,26 @@ def score(ID):
             if y > max_count:
                 max_count = y
             y = 0  
-    if max_count >= 2 and max_count <= 4:
-        extra_score = max_count * 50
-    if max_count == 5:
-        extra_score = 300
 
-    Tot_score = 0
-    Tot_score = results["game 1"][0] +  results["game 1"][1]
-    Tot_score = results["game 2"][0] + results["game 2"][1] + Tot_score
-    Tot_score = results["game 3"][0] + results["game 3"][1] + Tot_score
-    Tot_score = results["game 4"][0] + results["game 4"][1] + Tot_score
-    Tot_score = results["game 5"][0] + results["game 5"][1] + Tot_score
-    score = extra_score + Tot_score
+    if max_count >= 2:
+        extra_score += 100
+    if max_count >= 3:
+        extra_score += 150
+    if max_count >= 4:
+        extra_score += 200
+    if max_count >= 5:
+        extra_score += 300
+
+    game_score = 0
+    for i in range(0,5):
+        game_score += results[f"game {i}"][0] +  results[f"game {i}"][1]
+
+    score = extra_score + game_score
     data["score"] = score
     x[ID] = data
     with open("database.json", "w") as db:
         json.dump(x, db)
-
-def YorN():
-    while True:
-        Inpt = input().lower()
-        if Inpt == "y":
-            return True
-        elif Inpt == "n":
-            return False
-        else:
-            print("unknown input")
+    return score
 
 def update(ID):
     global x
@@ -235,40 +240,63 @@ def update(ID):
     game = [element for element in games]
     results = data["results"]
     progress = data["progress"]
+    game_picks = ["first", "second", "third", "fourth", "fifth"]
 
+    if "Playing" not in status:
+        print("Not currently playing, Use !status to see your status.")
+        return 0
     
-    if status == "Playing game 1":
-        print("Have you finished playing your first game? Y/N")
+    if "Playing" in status and "5" not in status:
+        if "1" in status:
+            i = 0
+        elif "2" in status:
+            i = 1
+        elif "3" in status:
+            i = 2
+        elif "4" in status:
+            i = 3
+        print(f"Have you finished playing your {game_picks[i]} game? Y/N")
         B = YorN()
         if B == False:
-            print("Use !update when you finished your game.")
+            print("Use !update when you finish your game.")
             return 0
-        print(f"Your first game was{game[0]}, Did you complete your main challenge: {games[game[0]][0]}? Y/N.")
+        print(f"Your {game_picks[i]} game was {game[i]}, Did you complete your main challenge: {games[game[i]][0]}")
         B = YorN()
         if B == True:
-            results["game 1"][0] = 100
-            print(f"Did you complete the additional challenge, {games[game[0]][1]}")
+            results[f"game {i}"][0] = 100
+            print(f"Did you complete the additional challenge, {games[game[i]][1]}")
             I = YorN()
             if I == True:
-                results["game 1"][1] = 50
-                print("Game 1 finished flawlessly, use !play to start the second game")
+                results[f"game {i}"][1] = 50
+                print(f"Game {i + 1} finished flawlessly, use !play to start the next game")
             if I == False:
-                print("Game 1 finished, use !play so start the second game")
+                print(f"Game {i + 1} finished, use !play to start the next game")
         if B == False:
-            print("Game 1 fully failed, use !play to start the second game")
-
+            print(f"Game {i + 1} failed horribly, use !play to start the next game")
         status = "ready"
-        progress = 1
-        score(ID)
-    elif status == "Playing game 2":
-        return 0
-    elif status == "Playing game 3":
-        return 0
-    elif status == "Playing game 4":
-        return 0
-    elif status == "Playing game 5":
-        return 0
-   
+    if status == "Playing game 5":
+        i = 4
+        print(f"Have you finished playing your fifth game? Y/N")
+        B = YorN()
+        if B == False:
+            print("Use !update when you finish your game.")
+            return 0
+        print(f"Your fifth game was {game[i]}, Did you complete your main challenge: {games[game[i]][0]}")
+        B = YorN()
+        if B == True:
+            results[f"game {i}"][0] = 100
+            print(f"Did you complete the additional challenge, {games[game[i]][1]}")
+            I = YorN()
+            if I == True:
+                results[f"game {i}"][1] = 50
+                print(f"Game {i + 1} finished flawlessly, use !finish to see your results")
+            if I == False:
+                print(f"Game {i + 1} finished, use !finish to see your results.")
+        if B == False:
+            print(f"Game {i + 1} failed horribly, use !finish to see your results.") 
+        status = "Finished"     
+    progress += 1
+              
     data["status"] = status
     data["games"] = games
     data["results"] = results
@@ -277,6 +305,69 @@ def update(ID):
 
     with open("database.json", "w") as db:
         json.dump(x, db)
+    Score(ID)
+
+def finish(ID):
+    data = x[ID]
+    progress = data["progress"] 
+    score = data["score"]
+    games = data["games"]
+    status = data["status"]
+    game = [element for element in games]
+    highscore = data["highscore"]
+    highscore_points = highscore["Highscore"]
+    highscore_time = highscore["time"]
+    cycle = highscore["cycle"]
+    n = datetime.datetime.now()
+    time = n.strftime("%c")
+
+    if status != "Finished":
+        print("Game not in Finished state, use !status.")
+        return 0
+
+    Score(ID)
+
+    if highscore_points < score:
+        print(f"Good job on finishing your pyramid run.\nthis was your {cycle} run.\nYou got {score} points with the games: {game[0]}, {game[1]}, {game[2]}, {game[3]} & {game[4]}\nWith a score of {score}, you got {highscore_points - score} more points than your previous high score, Congratulations!")
+        highscore_points = score
+        highscore_time = time
+    else:
+        print(f"Good job on finishing your pyramid run.\nthis was your {cycle} run.\nYou got {score} points with the games: {game[0]}, {game[1]}, {game[2]}, {game[3]} & {game[4]}\nWith a score of {score}, you got {highscore_points - score} less points than your highscore, Close one!")
+    
+    cycle += 1
+    highscore["time"] = highscore_time
+    highscore["Highscore"] = highscore_points
+    data["status"] = status
+    data["highscore"] = highscore
+    x[ID] = data
+
+    with open("database.json", "w") as db:
+        json.dump(x, db) 
+
+    ClearUsr(ID)
+
+def profile(ID):
+    data = x[ID]
+    highscore = data["highscore"]
+    highscore_points = highscore["Highscore"]
+    highscore_time = highscore["time"]
+    cycle = highscore["cycle"]
+    print(f"User: {ID}\nYou got your highscore on {highscore_time}, you got {highscore_points} points.\nYou have played a total of {cycle} games of the pyramid.")
+
+def dictionairy(Dict):  
+ return sorted(Dict.items(), key = 
+             lambda Dc:(Dc[1], Dc[0]))
+
+def leaderboard():
+    global x
+    Leaderboard = {"Score" : 1501, "Lowest score" : 0}
+    PrevScore = 1500
+    Dict = {}
+    for ID in x:
+        Dict[ID] = x[ID]["highscore"]["Highscore"]
+    LB = dictionairy(Dict)
+    LB.reverse()
+    print(LB)
 
 def Main():
     ID = input().lower()
@@ -289,25 +380,28 @@ def Main():
         if x == "!play": #starts play()
             play(ID)
         if x == "!clear": #starts the clear function
-            y = 0
-            while y == 0:
-                print("You sure you want to clear your current game? Y/N")
-                x = input().lower()
-                if x == "y":
-                    print("Clearing game")
-                    ClearUsr(ID)
-                    print("Game cleared...")
-                    y = 1
-                elif x == "n":
-                    print("Roger")
-                    y = 1
-                else:
-                    print("Unknown input; Y/N")
+            print("You sure you want to clear your current game? Y/N")
+            B = YorN()
+            if x == True:
+                print("Clearing game")
+                ClearUsr(ID)
+                print("Game cleared...")
+                y = 1
+            elif x == False:
+                print("Roger")
+                y = 1
         if x == "!status":
             status(ID) 
         if x == "!update":
             update(ID)
         if x == "!score":
-            score(ID)
+            print("Your current score is: " + str(Score(ID)))
+        if x == "!finish":
+            finish(ID)
+        if x == "!profile":
+            profile(ID)
+        if x == "!leaderboard":
+            leaderboard()
+
 
 Main() 
